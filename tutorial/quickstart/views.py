@@ -4,13 +4,16 @@ from rest_framework.decorators import api_view
 
 from .parser import parse_schema
 from django.http import JsonResponse
+import os
 
 
 
     
 @api_view(['GET'])
 def parse(request):
-    f = open("/Users/macbook/Desktop/tutorial/tutorial/quickstart/src/first_text.txt", "r")
+    current_dir = os.getcwd
+    path = current_dir + "tutorial/quickstart/src/first_text.txt"
+    f = open(path, "r")
     physical_plan = f.read()
     
     
