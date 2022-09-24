@@ -11,8 +11,9 @@ import os
     
 @api_view(['GET'])
 def parse(request):
-    current_dir = os.getcwd
-    path = current_dir + "tutorial/quickstart/src/first_text.txt"
+    path = os.getcwd() + "/tutorial/quickstart/src/first_text.txt"
+    
+    
     f = open(path, "r")
     physical_plan = f.read()
     
@@ -26,5 +27,5 @@ def parse(request):
     
     return JsonResponse(result, safe=False)
      
-    #return Response({"message": "Hello, world!"})
+    # return Response({"message": "Hello, world!"})
 
