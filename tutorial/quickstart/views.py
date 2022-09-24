@@ -21,9 +21,6 @@ def parse(request):
     
     result = [dict1]
     
-    print(result)
-    
-    
     return JsonResponse(result, safe=False)
      
     #return Response({"message": "Hello, world!"})
