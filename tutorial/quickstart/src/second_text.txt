@@ -1,0 +1,97 @@
+== Physical Plan ==
+AdaptiveSparkPlan (17)
++- Filter (16)
+   +- Window (15)
+      +- Sort (14)
+         +- Exchange (13)
+            +- Sort (12)
+               +- Exchange (11)
+                  +- HashAggregate (10)
+                     +- Exchange (9)
+                        +- HashAggregate (8)
+                           +- Union (7)
+                              :- Project (3)
+                              :  +- Filter (2)
+                              :     +- Scan csv  (1)
+                              +- Project (6)
+                                 +- Filter (5)
+                                    +- Scan csv  (4)
+
+
+(1) Scan csv 
+Output [14]: [SRC#147, CALL_START_TIME#148, SYSTEM_ID#149, NUMBER_ID#150, CALL_DIRECTION_IND#154, COUNTED_CDR_IND#159, CALL_TYPE_CODE#162, CONNECTION_TYPE_KEY#163, ORIG_PARENT_OPERATOR_CODE#170, TERM_PARENT_OPERATOR_CODE#172, CALLED_NUM#177, CALLING_NUM#178, ACTUAL_CALL_DURATION_SEC#184, CHARGE_AMT#193]
+Batched: false
+Location: InMemoryFileIndex [file:/home/jovyan/data/second_dataset.csv]
+PushedFilters: [IsNotNull(CALL_TYPE_CODE), IsNotNull(CONNECTION_TYPE_KEY), IsNotNull(CALL_DIRECTION_IND), IsNotNull(ACTUAL_CALL_DURATION_SEC), IsNotNull(CALLING_NUM), IsNotNull(TERM_PARENT_OPERATOR_CODE), IsNotNull(ORIG_PARENT_OPERATOR_CODE), In(SRC, [CHA,POST,PSA,ROAM]), EqualTo(CALL_TYPE_CODE,V), EqualTo(CONNECTION_TYPE_KEY,3), EqualTo(CALL_DIRECTION_IND,2), GreaterThan(ACTUAL_CALL_DURATION_SEC,0), StringStartsWith(CALLING_NUM,7), EqualTo(TERM_PARENT_OPERATOR_CODE,130), EqualTo(ORIG_PARENT_OPERATOR_CODE,130)]
+ReadSchema: struct<SRC:string,CALL_START_TIME:string,SYSTEM_ID:string,NUMBER_ID:string,CALL_DIRECTION_IND:string,COUNTED_CDR_IND:string,CALL_TYPE_CODE:string,CONNECTION_TYPE_KEY:string,ORIG_PARENT_OPERATOR_CODE:string,TERM_PARENT_OPERATOR_CODE:string,CALLED_NUM:string,CALLING_NUM:string,ACTUAL_CALL_DURATION_SEC:string,CHARGE_AMT:string>
+
+(2) Filter
+Input [14]: [SRC#147, CALL_START_TIME#148, SYSTEM_ID#149, NUMBER_ID#150, CALL_DIRECTION_IND#154, COUNTED_CDR_IND#159, CALL_TYPE_CODE#162, CONNECTION_TYPE_KEY#163, ORIG_PARENT_OPERATOR_CODE#170, TERM_PARENT_OPERATOR_CODE#172, CALLED_NUM#177, CALLING_NUM#178, ACTUAL_CALL_DURATION_SEC#184, CHARGE_AMT#193]
+Condition : (((((((((((((((((isnotnull(CALL_TYPE_CODE#162) AND isnotnull(CONNECTION_TYPE_KEY#163)) AND isnotnull(CALL_DIRECTION_IND#154)) AND isnotnull(ACTUAL_CALL_DURATION_SEC#184)) AND isnotnull(CALLING_NUM#178)) AND isnotnull(TERM_PARENT_OPERATOR_CODE#172)) AND isnotnull(ORIG_PARENT_OPERATOR_CODE#170)) AND SRC#147 IN (CHA,PSA,ROAM,POST)) AND (CALL_TYPE_CODE#162 = V)) AND ((COUNTED_CDR_IND#159 = 1) OR NOT (cast(CHARGE_AMT#193 as int) = 0))) AND (CONNECTION_TYPE_KEY#163 = 3)) AND (CALL_DIRECTION_IND#154 = 2)) AND (ACTUAL_CALL_DURATION_SEC#184 > 0)) AND StartsWith(CALLING_NUM#178, 7)) AND (TERM_PARENT_OPERATOR_CODE#172 = 130)) AND (ORIG_PARENT_OPERATOR_CODE#170 = 130)) AND ((length(CALLED_NUM#177) = 10) OR (length(CALLED_NUM#177) = 11))) AND StartsWith(CASE WHEN (length(CALLED_NUM#177) = 11) THEN substring(CALLED_NUM#177, 2, 10) ELSE CALLED_NUM#177 END, 7))
+
+(3) Project
+Output [6]: [NUMBER_ID#150, SYSTEM_ID#149, CASE WHEN (length(CALLED_NUM#177) = 11) THEN substring(CALLED_NUM#177, 2, 10) ELSE CALLED_NUM#177 END AS CONTACT#341, ACTUAL_CALL_DURATION_SEC#184, 2 AS type#261, trunc(cast(CALL_START_TIME#148 as date), MM) AS _groupingexpression#407]
+Input [14]: [SRC#147, CALL_START_TIME#148, SYSTEM_ID#149, NUMBER_ID#150, CALL_DIRECTION_IND#154, COUNTED_CDR_IND#159, CALL_TYPE_CODE#162, CONNECTION_TYPE_KEY#163, ORIG_PARENT_OPERATOR_CODE#170, TERM_PARENT_OPERATOR_CODE#172, CALLED_NUM#177, CALLING_NUM#178, ACTUAL_CALL_DURATION_SEC#184, CHARGE_AMT#193]
+
+(4) Scan csv 
+Output [14]: [SRC#278, CALL_START_TIME#279, SYSTEM_ID#280, NUMBER_ID#281, CALL_DIRECTION_IND#285, COUNTED_CDR_IND#290, CALL_TYPE_CODE#293, CONNECTION_TYPE_KEY#294, ORIG_PARENT_OPERATOR_CODE#301, TERM_PARENT_OPERATOR_CODE#303, CALLED_NUM#308, CALLING_NUM#309, ACTUAL_CALL_DURATION_SEC#315, CHARGE_AMT#324]
+Batched: false
+Location: InMemoryFileIndex [file:/home/jovyan/data/second_dataset.csv]
+PushedFilters: [IsNotNull(CALL_TYPE_CODE), IsNotNull(CONNECTION_TYPE_KEY), IsNotNull(CALL_DIRECTION_IND), IsNotNull(ACTUAL_CALL_DURATION_SEC), IsNotNull(CALLED_NUM), IsNotNull(ORIG_PARENT_OPERATOR_CODE), IsNotNull(TERM_PARENT_OPERATOR_CODE), In(SRC, [CHA,POST,PSA,ROAM]), EqualTo(CALL_TYPE_CODE,V), EqualTo(CONNECTION_TYPE_KEY,3), EqualTo(CALL_DIRECTION_IND,1), GreaterThan(ACTUAL_CALL_DURATION_SEC,0), StringStartsWith(CALLED_NUM,7), EqualTo(ORIG_PARENT_OPERATOR_CODE,130), EqualTo(TERM_PARENT_OPERATOR_CODE,130)]
+ReadSchema: struct<SRC:string,CALL_START_TIME:string,SYSTEM_ID:string,NUMBER_ID:string,CALL_DIRECTION_IND:string,COUNTED_CDR_IND:string,CALL_TYPE_CODE:string,CONNECTION_TYPE_KEY:string,ORIG_PARENT_OPERATOR_CODE:string,TERM_PARENT_OPERATOR_CODE:string,CALLED_NUM:string,CALLING_NUM:string,ACTUAL_CALL_DURATION_SEC:string,CHARGE_AMT:string>
+
+(5) Filter
+Input [14]: [SRC#278, CALL_START_TIME#279, SYSTEM_ID#280, NUMBER_ID#281, CALL_DIRECTION_IND#285, COUNTED_CDR_IND#290, CALL_TYPE_CODE#293, CONNECTION_TYPE_KEY#294, ORIG_PARENT_OPERATOR_CODE#301, TERM_PARENT_OPERATOR_CODE#303, CALLED_NUM#308, CALLING_NUM#309, ACTUAL_CALL_DURATION_SEC#315, CHARGE_AMT#324]
+Condition : (((((((((((((((((isnotnull(CALL_TYPE_CODE#293) AND isnotnull(CONNECTION_TYPE_KEY#294)) AND isnotnull(CALL_DIRECTION_IND#285)) AND isnotnull(ACTUAL_CALL_DURATION_SEC#315)) AND isnotnull(CALLED_NUM#308)) AND isnotnull(ORIG_PARENT_OPERATOR_CODE#301)) AND isnotnull(TERM_PARENT_OPERATOR_CODE#303)) AND SRC#278 IN (CHA,PSA,ROAM,POST)) AND (CALL_TYPE_CODE#293 = V)) AND ((COUNTED_CDR_IND#290 = 1) OR NOT (cast(CHARGE_AMT#324 as int) = 0))) AND (CONNECTION_TYPE_KEY#294 = 3)) AND (CALL_DIRECTION_IND#285 = 1)) AND (ACTUAL_CALL_DURATION_SEC#315 > 0)) AND StartsWith(CALLED_NUM#308, 7)) AND (ORIG_PARENT_OPERATOR_CODE#301 = 130)) AND (TERM_PARENT_OPERATOR_CODE#303 = 130)) AND ((length(CALLING_NUM#309) = 10) OR (length(CALLING_NUM#309) = 11))) AND StartsWith(CASE WHEN (length(CALLING_NUM#309) = 11) THEN substring(CALLING_NUM#309, 2, 10) ELSE CALLING_NUM#309 END, 7))
+
+(6) Project
+Output [6]: [NUMBER_ID#281, SYSTEM_ID#280, CASE WHEN (length(CALLING_NUM#309) = 11) THEN substring(CALLING_NUM#309, 2, 10) ELSE CALLING_NUM#309 END AS CONTACT#408, ACTUAL_CALL_DURATION_SEC#315, 1 AS type#270, trunc(cast(CALL_START_TIME#279 as date), MM) AS _groupingexpression#409]
+Input [14]: [SRC#278, CALL_START_TIME#279, SYSTEM_ID#280, NUMBER_ID#281, CALL_DIRECTION_IND#285, COUNTED_CDR_IND#290, CALL_TYPE_CODE#293, CONNECTION_TYPE_KEY#294, ORIG_PARENT_OPERATOR_CODE#301, TERM_PARENT_OPERATOR_CODE#303, CALLED_NUM#308, CALLING_NUM#309, ACTUAL_CALL_DURATION_SEC#315, CHARGE_AMT#324]
+
+(7) Union
+
+(8) HashAggregate
+Input [6]: [NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341, ACTUAL_CALL_DURATION_SEC#184, type#261, _groupingexpression#407]
+Keys [4]: [_groupingexpression#407, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341]
+Functions [6]: [partial_count(CONTACT#341), partial_sum(cast(ACTUAL_CALL_DURATION_SEC#184 as double)), partial_sum(CASE WHEN (type#261 = 1) THEN 1 ELSE 0 END), partial_sum(CASE WHEN (type#261 = 2) THEN 1 ELSE 0 END), partial_sum(CASE WHEN (type#261 = 1) THEN cast(ACTUAL_CALL_DURATION_SEC#184 as double) ELSE 0.0 END), partial_sum(CASE WHEN (type#261 = 2) THEN cast(ACTUAL_CALL_DURATION_SEC#184 as double) ELSE 0.0 END)]
+Aggregate Attributes [6]: [count#410L, sum#411, sum#412L, sum#413L, sum#414, sum#415]
+Results [10]: [_groupingexpression#407, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341, count#416L, sum#417, sum#418L, sum#419L, sum#420, sum#421]
+
+(9) Exchange
+Input [10]: [_groupingexpression#407, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341, count#416L, sum#417, sum#418L, sum#419L, sum#420, sum#421]
+Arguments: hashpartitioning(_groupingexpression#407, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341, 200), ENSURE_REQUIREMENTS, [id=#86]
+
+(10) HashAggregate
+Input [10]: [_groupingexpression#407, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341, count#416L, sum#417, sum#418L, sum#419L, sum#420, sum#421]
+Keys [4]: [_groupingexpression#407, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341]
+Functions [6]: [count(CONTACT#341), sum(cast(ACTUAL_CALL_DURATION_SEC#184 as double)), sum(CASE WHEN (type#261 = 1) THEN 1 ELSE 0 END), sum(CASE WHEN (type#261 = 2) THEN 1 ELSE 0 END), sum(CASE WHEN (type#261 = 1) THEN cast(ACTUAL_CALL_DURATION_SEC#184 as double) ELSE 0.0 END), sum(CASE WHEN (type#261 = 2) THEN cast(ACTUAL_CALL_DURATION_SEC#184 as double) ELSE 0.0 END)]
+Aggregate Attributes [6]: [count(CONTACT#341)#357L, sum(cast(ACTUAL_CALL_DURATION_SEC#184 as double))#358, sum(CASE WHEN (type#261 = 1) THEN 1 ELSE 0 END)#359L, sum(CASE WHEN (type#261 = 2) THEN 1 ELSE 0 END)#360L, sum(CASE WHEN (type#261 = 1) THEN cast(ACTUAL_CALL_DURATION_SEC#184 as double) ELSE 0.0 END)#363, sum(CASE WHEN (type#261 = 2) THEN cast(ACTUAL_CALL_DURATION_SEC#184 as double) ELSE 0.0 END)#364]
+Results [12]: [_groupingexpression#407 AS TIME_KEY#348, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341, count(CONTACT#341)#357L AS count#349L, sum(cast(ACTUAL_CALL_DURATION_SEC#184 as double))#358 AS sum_durat#350, sum(CASE WHEN (type#261 = 1) THEN 1 ELSE 0 END)#359L AS count_in#351L, sum(CASE WHEN (type#261 = 2) THEN 1 ELSE 0 END)#360L AS count_out#352L, sum(CASE WHEN (type#261 = 1) THEN cast(ACTUAL_CALL_DURATION_SEC#184 as double) ELSE 0.0 END)#363 AS sum_durat_in#353, sum(CASE WHEN (type#261 = 2) THEN cast(ACTUAL_CALL_DURATION_SEC#184 as double) ELSE 0.0 END)#364 AS sum_durat_out#354, (sum(CASE WHEN (type#261 = 1) THEN cast(ACTUAL_CALL_DURATION_SEC#184 as double) ELSE 0.0 END)#363 / cast(sum(CASE WHEN (type#261 = 1) THEN 1 ELSE 0 END)#359L as double)) AS avg_durat_in#355, (sum(CASE WHEN (type#261 = 2) THEN cast(ACTUAL_CALL_DURATION_SEC#184 as double) ELSE 0.0 END)#364 / cast(sum(CASE WHEN (type#261 = 2) THEN 1 ELSE 0 END)#360L as double)) AS avg_durat_out#356]
+
+(11) Exchange
+Input [12]: [TIME_KEY#348, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341, count#349L, sum_durat#350, count_in#351L, count_out#352L, sum_durat_in#353, sum_durat_out#354, avg_durat_in#355, avg_durat_out#356]
+Arguments: rangepartitioning(NUMBER_ID#150 ASC NULLS FIRST, SYSTEM_ID#149 ASC NULLS FIRST, count#349L DESC NULLS LAST, 200), ENSURE_REQUIREMENTS, [id=#89]
+
+(12) Sort
+Input [12]: [TIME_KEY#348, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341, count#349L, sum_durat#350, count_in#351L, count_out#352L, sum_durat_in#353, sum_durat_out#354, avg_durat_in#355, avg_durat_out#356]
+Arguments: [NUMBER_ID#150 ASC NULLS FIRST, SYSTEM_ID#149 ASC NULLS FIRST, count#349L DESC NULLS LAST], true, 0
+
+(13) Exchange
+Input [12]: [TIME_KEY#348, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341, count#349L, sum_durat#350, count_in#351L, count_out#352L, sum_durat_in#353, sum_durat_out#354, avg_durat_in#355, avg_durat_out#356]
+Arguments: hashpartitioning(TIME_KEY#348, NUMBER_ID#150, SYSTEM_ID#149, 200), ENSURE_REQUIREMENTS, [id=#92]
+
+(14) Sort
+Input [12]: [TIME_KEY#348, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341, count#349L, sum_durat#350, count_in#351L, count_out#352L, sum_durat_in#353, sum_durat_out#354, avg_durat_in#355, avg_durat_out#356]
+Arguments: [TIME_KEY#348 ASC NULLS FIRST, NUMBER_ID#150 ASC NULLS FIRST, SYSTEM_ID#149 ASC NULLS FIRST, NUMBER_ID#150 ASC NULLS FIRST, SYSTEM_ID#149 ASC NULLS FIRST, count#349L DESC NULLS LAST, sum_durat#350 DESC NULLS LAST], false, 0
+
+(15) Window
+Input [12]: [TIME_KEY#348, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341, count#349L, sum_durat#350, count_in#351L, count_out#352L, sum_durat_in#353, sum_durat_out#354, avg_durat_in#355, avg_durat_out#356]
+Arguments: [row_number() windowspecdefinition(TIME_KEY#348, NUMBER_ID#150, SYSTEM_ID#149, NUMBER_ID#150 ASC NULLS FIRST, SYSTEM_ID#149 ASC NULLS FIRST, count#349L DESC NULLS LAST, sum_durat#350 DESC NULLS LAST, specifiedwindowframe(RowFrame, unboundedpreceding$(), currentrow$())) AS RowNum#379], [TIME_KEY#348, NUMBER_ID#150, SYSTEM_ID#149], [NUMBER_ID#150 ASC NULLS FIRST, SYSTEM_ID#149 ASC NULLS FIRST, count#349L DESC NULLS LAST, sum_durat#350 DESC NULLS LAST]
+
+(16) Filter
+Input [13]: [TIME_KEY#348, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341, count#349L, sum_durat#350, count_in#351L, count_out#352L, sum_durat_in#353, sum_durat_out#354, avg_durat_in#355, avg_durat_out#356, RowNum#379]
+Condition : (RowNum#379 < 31)
+
+(17) AdaptiveSparkPlan
+Output [13]: [TIME_KEY#348, NUMBER_ID#150, SYSTEM_ID#149, CONTACT#341, count#349L, sum_durat#350, count_in#351L, count_out#352L, sum_durat_in#353, sum_durat_out#354, avg_durat_in#355, avg_durat_out#356, RowNum#379]
+Arguments: isFinalPlan=false
