@@ -14,16 +14,22 @@ def parse(request):
     path = os.getcwd() + "/tutorial/quickstart/src/first_text.txt"
     
     
-    f = open(path, "r")
-    physical_plan = f.read()
+    f1 = open(path, "r")
+    physical_plan1 = f1.read()
+    
+    f2 = open(path, "r")
+    physical_plan2 = f2.read()
+    
+    f3 = open(path, "r")
+    physical_plan3 = f3.read()
     
     
-    graph1 =  parse_schema(physical_plan)
+    result1 =  parse_schema(physical_plan1, "first_text")
+    result2 =  parse_schema(physical_plan2, "second_text")
+    result3 =  parse_schema(physical_plan3, "third_text")
     
-    dict1 = {'id': 1, 'filename' : 'first_text', 'code' : 'some code'}
-    dict1.update(graph1)
+    result = [result1, result2, result3]
     
-    result = [dict1]
     
     return JsonResponse(result, safe=False)
      

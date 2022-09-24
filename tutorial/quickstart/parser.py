@@ -1,8 +1,9 @@
 from .utils import parse_col, remove_commas
 import re
+import networkx as nx
 from django.http import JsonResponse
 
-def parse_schema(physical_plan: str):
+def parse_schema(physical_plan: str, filename: str):
     """
     Входные данные:
         physical_plan: текст физического плана для датафрейма
@@ -27,14 +28,16 @@ def parse_schema(physical_plan: str):
         command = lines[0].split()[1]   # команда для сплита
 
         if command == "Scan":
-            location = re.findall(r'\[(.*?)\]', lines[3])[0]            # расположение файла
-            results = re.findall(r'\[(.*?)\]', lines[1])[1] # все колонки которые ссылаются на этот файл
+            # расположение файла
+            location = re.findall(r'\[(.*?)\]', lines[3])[0]
+            # все колонки которые ссылаются на этот файл
+            results = re.findall(r'\[(.*?)\]', lines[1])[1]
             # добавляем спаршенную колонку в наш словарь
             for result in results.split(", "):
                 col = parse_col(result)
                 input_cols.add(col)
                 all_cols.add(col)
-                col_to_location[col] = f"{location}.{col}"
+                col_to_location[col] = location
 
         elif command == "AdaptiveSparkPlan":
             outputs = re.findall(r'\[(.*?)\]', lines[1])[1]
@@ -54,49 +57,74 @@ def parse_schema(physical_plan: str):
                     try: left, right = result.split(" AS ")
                     except: continue
                     # заменяем скобочки на пробелы и ищем название колонки
-                    for word in left.replace("(", " ").replace(")", " ").split():
+                    words = left.replace("(", " ").replace(")", " ").split()
+                    for word in words:
                         # в интересующей нас колонке содержится #, но сама начинается с #
-                        if not word.startswith("#") and "#" in word:
-                            if not right.startswith("_"):
-                                child_col = parse_col(right)
-                            else:
-                                child_col = right
+                        if (not word.startswith("#") and "#" in word) or len(words) == 1:
+                            child_col = parse_col(right)
                             all_cols.add(child_col)
-                            if not word.startswith("_"):
-                                parent_col = parse_col(word)
-                            else:
-                                parent_col = word
+                            parent_col = parse_col(word)
                             all_cols.add(parent_col)
+                            # скипаем случаи когда нод отсылается на самого себя
                             if child_col == parent_col:
                                 continue
+                            # делаем parent_col родителем child_col
                             if child_col not in dependencies:
                                 dependencies[child_col] = {parent_col}
                             else:
                                 dependencies[child_col].add(parent_col)
-    graph = dict()
-    graph["graph"] = {"nodes": [], "links": []}
+    
+    # создаем словарь содержащий информацию о графе который будем джсонифировать
+    json_file = dict()
+    json_file["graph"] = {"nodes": [], "links": []}
 
     for col in all_cols:
         node = {"id": col}
+        # задаем цвета вершинам графа
         if col in input_cols and col in output_cols:
             node["color"] = "green"
         elif col in input_cols:
             node["color"] = "red"
         elif col in output_cols:
             node["color"] = "blue"
+        # инфа о локации которая будет отображаться при нажатии на нод
         if col in col_to_location.keys():
             node["location"] = col_to_location[col]
-        graph["graph"]["nodes"].append(node)
+        json_file["graph"]["nodes"].append(node)
 
+    # вводим связи вершин графа в json_file
     for child, parents in dependencies.items():
         for parent in parents:
             node = {"source": parent, "target": child}
-            graph["graph"]["links"].append(node)
+            json_file["graph"]["links"].append(node)
 
-    # with open("graph.json", "w") as outfile:
-    #     json.dump(graph, outfile, indent=4)
-    
-    return graph
-    
-    #return dependencies, col_to_location, input_cols, output_cols
+    dependencies_inverse = []
+    for key, val in sorted(dependencies.items()):
+        for j in val:
+            dependencies_inverse.append((j, key))
 
+    nx_graph = nx.DiGraph()
+    nx_graph.add_edges_from(dependencies_inverse)
+    answer = {}
+    for child, parents in sorted(dependencies.items()):
+        if child not in output_cols:
+            continue
+        ancestors_dict = list(nx.ancestors(nx_graph, child))
+        answer[child] = {
+            'data_sources' : set(),
+            'cols_dependencies': set()
+        }
+        for ancestor in ancestors_dict:
+            if ancestor in input_cols:
+                if ancestor in col_to_location:
+                    location_modified = f"{col_to_location[ancestor]}.{ancestor}"
+                else:
+                    location_modified = f"null_file.{ancestor}"
+                answer[child]['data_sources'].add(col_to_location[ancestor])
+                answer[child]['cols_dependencies'].add(location_modified)
+            
+    json_file["id"] = 1
+    json_file["filename"] = filename
+    json_file["code"] = str(answer)
+    
+    return json_file
