@@ -138,11 +138,13 @@ REST_FRAMEWORK = {
 import django_on_heroku
 django_on_heroku.settings(locals())
 
-CORS_ALLOWED_ORIGINS = [
-    "https://domain.com",
-    'https://hacknu.herokuapp.com/parser/',
-    'https://hacknu.herokuapp.com',
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "https://domain.com",
+#     'https://hacknu.herokuapp.com/parser/',
+#     'https://hacknu.herokuapp.com',
+# ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_METHODS = [
     'POST',
