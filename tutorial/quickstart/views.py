@@ -24,9 +24,9 @@ def parse(request):
     physical_plan3 = f3.read()
     
     
-    result1 =  parse_schema(physical_plan1, "first_text")
-    result2 =  parse_schema(physical_plan2, "second_text")
-    result3 =  parse_schema(physical_plan3, "third_text")
+    result1 =  parse_schema(physical_plan1, "first_text",1)
+    result2 =  parse_schema(physical_plan2, "second_text",2)
+    result3 =  parse_schema(physical_plan3, "third_text",3)
     
     result = [result1, result2, result3]
     

@@ -3,7 +3,7 @@ import re
 import networkx as nx
 from django.http import JsonResponse
 
-def parse_schema(physical_plan: str, filename: str):
+def parse_schema(physical_plan: str, filename: str, id: int):
     """
     Входные данные:
         physical_plan: текст физического плана для датафрейма
@@ -14,7 +14,6 @@ def parse_schema(physical_plan: str, filename: str):
 
     col_to_location = dict()    # мапает колонки в файл который им соответствует
     dependencies = dict()       # мапает одну колонку в лист с которыми он зависим
-    parsed = dict()             # ответ который нам нужно вывести
     input_cols = set()          # сет со всеми входными колонками
     output_cols = set()         # сет со всеми выходными колонками
     all_cols = set()
@@ -123,7 +122,7 @@ def parse_schema(physical_plan: str, filename: str):
                 answer[child]['data_sources'].add(col_to_location[ancestor])
                 answer[child]['cols_dependencies'].add(location_modified)
             
-    json_file["id"] = 1
+    json_file["id"] = id
     json_file["filename"] = filename
     json_file["code"] = str(answer)
     
