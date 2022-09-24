@@ -11,16 +11,18 @@ import os
     
 @api_view(['GET'])
 def parse(request):
-    path = os.getcwd() + "/tutorial/quickstart/src/first_text.txt"
+    path1 = os.getcwd() + "/tutorial/quickstart/src/first_text.txt"
+    path2 = os.getcwd() + "/tutorial/quickstart/src/second_text.txt"
+    path3 = os.getcwd() + "/tutorial/quickstart/src/third_text.txt"
     
     
-    f1 = open(path, "r")
+    f1 = open(path1, "r")
     physical_plan1 = f1.read()
     
-    f2 = open(path, "r")
+    f2 = open(path2, "r")
     physical_plan2 = f2.read()
     
-    f3 = open(path, "r")
+    f3 = open(path3, "r")
     physical_plan3 = f3.read()
     
     
