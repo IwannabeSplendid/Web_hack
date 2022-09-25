@@ -1,7 +1,6 @@
 from .utils import parse_col, remove_commas
 import re
 import networkx as nx
-from django.http import JsonResponse
 
 def parse_schema(physical_plan: str, filename: str, id: int):
     """

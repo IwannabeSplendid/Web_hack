@@ -1,8 +1,6 @@
 from django.urls import path
 
-from .quickstart import views
-
-
+from .parser import views
 
 urlpatterns = [
     path('parser/', views.parse),

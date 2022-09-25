@@ -1,1 +1,1 @@
-web: gunicorn tutorial.wsgi
+web: gunicorn hacknu-api.wsgi
