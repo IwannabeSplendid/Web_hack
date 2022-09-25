@@ -1,5 +1,4 @@
 __pychache__/
-*.pyc
 db.sqlite3
-tutenv
+tutenv/
 *.DS_Store
