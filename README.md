@@ -4,13 +4,13 @@ This project is a bare-bones API server designed to solve the problem of HackNU 
 
 The server return a json message with following structure: <br />
 <pre>
-[{  id :  ..., <br />
-   filename : ..., <br />
-   code : ..., <br />
-   graph : ... <br />
- } <br />
- ... <br />
-] <br />
+[{  id :  ..., 
+   filename : ..., 
+   code : ..., 
+   graph : ... 
+ } 
+ ... 
+] 
 </pre>
 
 ## Getting Started with App
