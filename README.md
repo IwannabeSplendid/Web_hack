@@ -15,10 +15,10 @@ The server return a json message with following structure: <br />
 
 ## Getting Started with App
 
-1. First of all, clone project in the working directory `git clone ...` <br />
-2. Then go into the working folder `cd Web_hack` <br />
-3. Use the `pip3 install -r requirements.txt` command to install all of the Python modules and packages listed in the requirements.txt file <br />
-4. Upload the physical schemes of the scripts that need to be parsed to the folder 'hacknu-api/parser/src' <br />
+1. First of all, clone project in the working directory `git clone ...`; <br />
+2. Then go into the working folder `cd Web_hack`; <br />
+3. Use the `pip3 install -r requirements.txt` command to install all of the Python modules and packages listed in the requirements.txt file; <br />
+4. Upload the physical schemes of the scripts that need to be parsed to the folder `hacknu-api/parser/src`. <br />
 
 ## Running the server
 
