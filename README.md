@@ -4,16 +4,19 @@ This project is a bare-bones API server designed to solve the problem of HackNU 
 
 The server return a json message with following structure:
 [{  id :  ...,
-    filename : ...,
-    code : ...,
-    graph : ...
-  }
-  ...
+ >>   filename : ...,
+ >>   code : ...,
+ >>   graph : ...
+ > }
+ > ...
 ]
 
 ## Getting Started with App
 
-First of all, clone project in the working directory `git clone ...`. Then go into the working folder `cd Web_hack`. Use the 'pip3 install -r requirements.txt' command to install all of the Python modules and packages listed in the requirements.txt file. Upload the physical schemes of the scripts that need to be parsed to the folder 'hacknu-api/parser/src'.
+First of all, clone project in the working directory `git clone ...`
+Then go into the working folder `cd Web_hack`
+Use the 'pip3 install -r requirements.txt' command to install all of the Python modules and packages listed in the requirements.txt file
+Upload the physical schemes of the scripts that need to be parsed to the folder 'hacknu-api/parser/src'
 
 ## Running the server
 
