@@ -1,0 +1,212 @@
+== Physical Plan ==
+AdaptiveSparkPlan (41)
++- Project (40)
+   +- SortMergeJoin Inner (39)
+      :- Sort (33)
+      :  +- Exchange (32)
+      :     +- Project (31)
+      :        +- SortMergeJoin LeftOuter (30)
+      :           :- Sort (5)
+      :           :  +- Exchange (4)
+      :           :     +- Project (3)
+      :           :        +- Filter (2)
+      :           :           +- Scan ExistingRDD (1)
+      :           +- Sort (29)
+      :              +- Exchange (28)
+      :                 +- Union (27)
+      :                    :- Project (8)
+      :                    :  +- Filter (7)
+      :                    :     +- Scan ExistingRDD (6)
+      :                    +- Project (26)
+      :                       +- Filter (25)
+      :                          +- Window (24)
+      :                             +- Sort (23)
+      :                                +- Exchange (22)
+      :                                   +- HashAggregate (21)
+      :                                      +- Exchange (20)
+      :                                         +- HashAggregate (19)
+      :                                            +- Project (18)
+      :                                               +- BatchEvalPython (17)
+      :                                                  +- Project (16)
+      :                                                     +- Filter (15)
+      :                                                        +- BatchEvalPython (14)
+      :                                                           +- CartesianProduct Inner (13)
+      :                                                              :- Project (11)
+      :                                                              :  +- Filter (10)
+      :                                                              :     +- Scan ExistingRDD (9)
+      :                                                              +- Scan ExistingRDD (12)
+      +- Sort (38)
+         +- Exchange (37)
+            +- Project (36)
+               +- Filter (35)
+                  +- Scan ExistingRDD (34)
+
+
+(1) Scan ExistingRDD
+Output [14]: [name#46, description#47, city_name#48, address#49, website#50, instagram#51, VK#52, subcategory_list#53, id_2#54L, lon#55, lat#56, schedule#57, phone_clean_arr#58, stop_factors#59]
+Arguments: [name#46, description#47, city_name#48, address#49, website#50, instagram#51, VK#52, subcategory_list#53, id_2#54L, lon#55, lat#56, schedule#57, phone_clean_arr#58, stop_factors#59], MapPartitionsRDD[14] at applySchemaToPythonRDD at NativeMethodAccessorImpl.java:0, ExistingRDD, UnknownPartitioning(0)
+
+(2) Filter
+Input [14]: [name#46, description#47, city_name#48, address#49, website#50, instagram#51, VK#52, subcategory_list#53, id_2#54L, lon#55, lat#56, schedule#57, phone_clean_arr#58, stop_factors#59]
+Condition : ((city_name#48 INSET Аксу, Актау, Актобе, Алматы, Атырау, Караганда, Кокшетау, Костанай, Нур-Султан, Павлодар, Петропавловск, Темиртау, Уральск, Усть-Каменогорск AND (((isnotnull(lat#56) AND isnotnull(lon#55)) AND (cast(lat#56 as int) <= 90)) AND (cast(lon#55 as int) <= 180))) AND isnotnull(CheckOverflow((promote_precision(cast(cast(lon#55 as decimal(24,20)) as decimal(25,20))) + promote_precision(cast(cast(lat#56 as decimal(24,20)) as decimal(25,20)))), DecimalType(25,20))))
+
+(3) Project
+Output [7]: [lower(name#46) AS company_name#74, description#47, subcategory_list#53, id_2#54L AS ORG_ID#75L, lon#55, lat#56, city_name#48]
+Input [14]: [name#46, description#47, city_name#48, address#49, website#50, instagram#51, VK#52, subcategory_list#53, id_2#54L, lon#55, lat#56, schedule#57, phone_clean_arr#58, stop_factors#59]
+
+(4) Exchange
+Input [7]: [company_name#74, description#47, subcategory_list#53, ORG_ID#75L, lon#55, lat#56, city_name#48]
+Arguments: hashpartitioning(ORG_ID#75L, 200), ENSURE_REQUIREMENTS, [id=#157]
+
+(5) Sort
+Input [7]: [company_name#74, description#47, subcategory_list#53, ORG_ID#75L, lon#55, lat#56, city_name#48]
+Arguments: [ORG_ID#75L ASC NULLS FIRST], false, 0
+
+(6) Scan ExistingRDD
+Output [14]: [name#210, description#211, city_name#212, address#213, website#214, instagram#215, VK#216, subcategory_list#217, id_2#218L, lon#219, lat#220, schedule#221, phone_clean_arr#222, stop_factors#223]
+Arguments: [name#210, description#211, city_name#212, address#213, website#214, instagram#215, VK#216, subcategory_list#217, id_2#218L, lon#219, lat#220, schedule#221, phone_clean_arr#222, stop_factors#223], MapPartitionsRDD[14] at applySchemaToPythonRDD at NativeMethodAccessorImpl.java:0, ExistingRDD, UnknownPartitioning(0)
+
+(7) Filter
+Input [14]: [name#210, description#211, city_name#212, address#213, website#214, instagram#215, VK#216, subcategory_list#217, id_2#218L, lon#219, lat#220, schedule#221, phone_clean_arr#222, stop_factors#223]
+Condition : ((city_name#212 INSET Аксу, Актау, Актобе, Алматы, Атырау, Караганда, Кокшетау, Костанай, Нур-Султан, Павлодар, Петропавловск, Темиртау, Уральск, Усть-Каменогорск AND ((((isnotnull(lat#220) AND isnotnull(lon#219)) AND (cast(lat#220 as int) <= 90)) AND (cast(lon#219 as int) <= 180)) AND (Contains(lower(name#210), kcell) OR (Contains(lower(name#210), tele2) OR Contains(lower(name#210), altel))))) AND isnotnull(id_2#218L))
+
+(8) Project
+Output [2]: [id_2#218L AS ORG_ID#225L, CASE WHEN Contains(lower(name#210), kcell) THEN KCELL ELSE TELE2 END AS ORG_SUBCAT#145]
+Input [14]: [name#210, description#211, city_name#212, address#213, website#214, instagram#215, VK#216, subcategory_list#217, id_2#218L, lon#219, lat#220, schedule#221, phone_clean_arr#222, stop_factors#223]
+
+(9) Scan ExistingRDD
+Output [14]: [name#192, description#193, city_name#194, address#195, website#196, instagram#197, VK#198, subcategory_list#199, id_2#200L, lon#201, lat#202, schedule#203, phone_clean_arr#204, stop_factors#205]
+Arguments: [name#192, description#193, city_name#194, address#195, website#196, instagram#197, VK#198, subcategory_list#199, id_2#200L, lon#201, lat#202, schedule#203, phone_clean_arr#204, stop_factors#205], MapPartitionsRDD[14] at applySchemaToPythonRDD at NativeMethodAccessorImpl.java:0, ExistingRDD, UnknownPartitioning(0)
+
+(10) Filter
+Input [14]: [name#192, description#193, city_name#194, address#195, website#196, instagram#197, VK#198, subcategory_list#199, id_2#200L, lon#201, lat#202, schedule#203, phone_clean_arr#204, stop_factors#205]
+Condition : ((isnotnull(name#192) AND (city_name#194 INSET Аксу, Актау, Актобе, Алматы, Атырау, Караганда, Кокшетау, Костанай, Нур-Султан, Павлодар, Петропавловск, Темиртау, Уральск, Усть-Каменогорск AND (((((isnotnull(lat#202) AND isnotnull(lon#201)) AND (cast(lat#202 as int) <= 90)) AND (cast(lon#201 as int) <= 180)) AND NOT Contains(lower(name#192), kcell)) AND (NOT Contains(lower(name#192), tele2) AND NOT Contains(lower(name#192), altel))))) AND isnotnull(id_2#200L))
+
+(11) Project
+Output [2]: [subcategory_list#199, id_2#200L AS ORG_ID#75L]
+Input [14]: [name#192, description#193, city_name#194, address#195, website#196, instagram#197, VK#198, subcategory_list#199, id_2#200L, lon#201, lat#202, schedule#203, phone_clean_arr#204, stop_factors#205]
+
+(12) Scan ExistingRDD
+Output [2]: [ORG_SUBCAT#156, TARGET_SUBCAT_LST#157]
+Arguments: [ORG_SUBCAT#156, TARGET_SUBCAT_LST#157], MapPartitionsRDD[24] at applySchemaToPythonRDD at NativeMethodAccessorImpl.java:0, ExistingRDD, UnknownPartitioning(0)
+
+(13) CartesianProduct
+Join condition: None
+
+(14) BatchEvalPython
+Input [4]: [subcategory_list#199, ORG_ID#75L, ORG_SUBCAT#156, TARGET_SUBCAT_LST#157]
+Arguments: [org_subcat_mapping(subcategory_list#199, TARGET_SUBCAT_LST#157)#169], [pythonUDF0#289]
+
+(15) Filter
+Input [5]: [subcategory_list#199, ORG_ID#75L, ORG_SUBCAT#156, TARGET_SUBCAT_LST#157, pythonUDF0#289]
+Condition : (pythonUDF0#289 > 0)
+
+(16) Project
+Output [4]: [subcategory_list#199, ORG_ID#75L, ORG_SUBCAT#156, TARGET_SUBCAT_LST#157]
+Input [5]: [subcategory_list#199, ORG_ID#75L, ORG_SUBCAT#156, TARGET_SUBCAT_LST#157, pythonUDF0#289]
+
+(17) BatchEvalPython
+Input [4]: [subcategory_list#199, ORG_ID#75L, ORG_SUBCAT#156, TARGET_SUBCAT_LST#157]
+Arguments: [org_subcat_mapping(subcategory_list#199, TARGET_SUBCAT_LST#157)#169], [pythonUDF0#290]
+
+(18) Project
+Output [3]: [ORG_ID#75L, pythonUDF0#290 AS INTERSECT_LEN#170, ORG_SUBCAT#156]
+Input [5]: [subcategory_list#199, ORG_ID#75L, ORG_SUBCAT#156, TARGET_SUBCAT_LST#157, pythonUDF0#290]
+
+(19) HashAggregate
+Input [3]: [ORG_ID#75L, INTERSECT_LEN#170, ORG_SUBCAT#156]
+Keys [3]: [ORG_ID#75L, INTERSECT_LEN#170, ORG_SUBCAT#156]
+Functions: []
+Aggregate Attributes: []
+Results [3]: [ORG_ID#75L, INTERSECT_LEN#170, ORG_SUBCAT#156]
+
+(20) Exchange
+Input [3]: [ORG_ID#75L, INTERSECT_LEN#170, ORG_SUBCAT#156]
+Arguments: hashpartitioning(ORG_ID#75L, INTERSECT_LEN#170, ORG_SUBCAT#156, 200), ENSURE_REQUIREMENTS, [id=#146]
+
+(21) HashAggregate
+Input [3]: [ORG_ID#75L, INTERSECT_LEN#170, ORG_SUBCAT#156]
+Keys [3]: [ORG_ID#75L, INTERSECT_LEN#170, ORG_SUBCAT#156]
+Functions: []
+Aggregate Attributes: []
+Results [3]: [ORG_ID#75L, INTERSECT_LEN#170, ORG_SUBCAT#156]
+
+(22) Exchange
+Input [3]: [ORG_ID#75L, INTERSECT_LEN#170, ORG_SUBCAT#156]
+Arguments: hashpartitioning(ORG_ID#75L, 200), ENSURE_REQUIREMENTS, [id=#149]
+
+(23) Sort
+Input [3]: [ORG_ID#75L, INTERSECT_LEN#170, ORG_SUBCAT#156]
+Arguments: [ORG_ID#75L ASC NULLS FIRST, INTERSECT_LEN#170 DESC NULLS LAST], false, 0
+
+(24) Window
+Input [3]: [ORG_ID#75L, INTERSECT_LEN#170, ORG_SUBCAT#156]
+Arguments: [row_number() windowspecdefinition(ORG_ID#75L, INTERSECT_LEN#170 DESC NULLS LAST, specifiedwindowframe(RowFrame, unboundedpreceding$(), currentrow$())) AS RANK#185], [ORG_ID#75L], [INTERSECT_LEN#170 DESC NULLS LAST]
+
+(25) Filter
+Input [4]: [ORG_ID#75L, INTERSECT_LEN#170, ORG_SUBCAT#156, RANK#185]
+Condition : (RANK#185 = 1)
+
+(26) Project
+Output [2]: [ORG_ID#75L AS ORG_ID#206L, ORG_SUBCAT#156]
+Input [4]: [ORG_ID#75L, INTERSECT_LEN#170, ORG_SUBCAT#156, RANK#185]
+
+(27) Union
+
+(28) Exchange
+Input [2]: [ORG_ID#225L, ORG_SUBCAT#145]
+Arguments: hashpartitioning(ORG_ID#225L, 200), ENSURE_REQUIREMENTS, [id=#158]
+
+(29) Sort
+Input [2]: [ORG_ID#225L, ORG_SUBCAT#145]
+Arguments: [ORG_ID#225L ASC NULLS FIRST], false, 0
+
+(30) SortMergeJoin
+Left keys [1]: [ORG_ID#75L]
+Right keys [1]: [ORG_ID#225L]
+Join condition: None
+
+(31) Project
+Output [9]: [ORG_ID#75L, company_name#74, description#47, cast(subcategory_list#53 as string) AS subcategory_list#251, lon#55, lat#56, city_name#48, coalesce(ORG_SUBCAT#145, N_A) AS ORG_SUBCAT#242, CheckOverflow((promote_precision(cast(cast(lon#55 as decimal(24,20)) as decimal(25,20))) + promote_precision(cast(cast(lat#56 as decimal(24,20)) as decimal(25,20)))), DecimalType(25,20)) AS GEOM_POINT#260]
+Input [9]: [company_name#74, description#47, subcategory_list#53, ORG_ID#75L, lon#55, lat#56, city_name#48, ORG_ID#225L, ORG_SUBCAT#145]
+
+(32) Exchange
+Input [9]: [ORG_ID#75L, company_name#74, description#47, subcategory_list#251, lon#55, lat#56, city_name#48, ORG_SUBCAT#242, GEOM_POINT#260]
+Arguments: hashpartitioning(knownfloatingpointnormalized(normalizenanandzero(cast(GEOM_POINT#260 as double))), 200), ENSURE_REQUIREMENTS, [id=#165]
+
+(33) Sort
+Input [9]: [ORG_ID#75L, company_name#74, description#47, subcategory_list#251, lon#55, lat#56, city_name#48, ORG_SUBCAT#242, GEOM_POINT#260]
+Arguments: [knownfloatingpointnormalized(normalizenanandzero(cast(GEOM_POINT#260 as double))) ASC NULLS FIRST], false, 0
+
+(34) Scan ExistingRDD
+Output [20]: [ZID_ID#83, DIAG_SIZE#84, LAT_BOT_LEFT#85, LONG_BOT_LEFT#86, LAT_BOT_RIGHT#87, LONG_BOT_RIGHT#88, LAT_TOP_RIGHT#89, LONG_TOP_RIGHT#90, LAT_TOP_LEFT#91, LONG_TOP_LEFT#92, LAT_CENTER#93, LONG_CENTER#94, POLYGON_WKT#95, REGION#96, CITY#97, VILLAGE#98, DISTRICT#99, IN_SPECIAL_ZONE#100, ZONE_ID#101, ZONE_TYPE#102]
+Arguments: [ZID_ID#83, DIAG_SIZE#84, LAT_BOT_LEFT#85, LONG_BOT_LEFT#86, LAT_BOT_RIGHT#87, LONG_BOT_RIGHT#88, LAT_TOP_RIGHT#89, LONG_TOP_RIGHT#90, LAT_TOP_LEFT#91, LONG_TOP_LEFT#92, LAT_CENTER#93, LONG_CENTER#94, POLYGON_WKT#95, REGION#96, CITY#97, VILLAGE#98, DISTRICT#99, IN_SPECIAL_ZONE#100, ZONE_ID#101, ZONE_TYPE#102], MapPartitionsRDD[19] at applySchemaToPythonRDD at NativeMethodAccessorImpl.java:0, ExistingRDD, UnknownPartitioning(0)
+
+(35) Filter
+Input [20]: [ZID_ID#83, DIAG_SIZE#84, LAT_BOT_LEFT#85, LONG_BOT_LEFT#86, LAT_BOT_RIGHT#87, LONG_BOT_RIGHT#88, LAT_TOP_RIGHT#89, LONG_TOP_RIGHT#90, LAT_TOP_LEFT#91, LONG_TOP_LEFT#92, LAT_CENTER#93, LONG_CENTER#94, POLYGON_WKT#95, REGION#96, CITY#97, VILLAGE#98, DISTRICT#99, IN_SPECIAL_ZONE#100, ZONE_ID#101, ZONE_TYPE#102]
+Condition : ((isnotnull(DIAG_SIZE#84) AND ((cast(DIAG_SIZE#84 as int) = 750) AND CITY#97 INSET Аксу, Актау, Актобе, Алматы, Атырау, Караганда, Кокшетау, Костанай, Нур-Султан, Павлодар, Петропавловск, Темиртау, Уральск, Усть-Каменогорск)) AND isnotnull(POLYGON_WKT#95))
+
+(36) Project
+Output [2]: [ZID_ID#83, POLYGON_WKT#95 AS GEOM_POLYGON#123]
+Input [20]: [ZID_ID#83, DIAG_SIZE#84, LAT_BOT_LEFT#85, LONG_BOT_LEFT#86, LAT_BOT_RIGHT#87, LONG_BOT_RIGHT#88, LAT_TOP_RIGHT#89, LONG_TOP_RIGHT#90, LAT_TOP_LEFT#91, LONG_TOP_LEFT#92, LAT_CENTER#93, LONG_CENTER#94, POLYGON_WKT#95, REGION#96, CITY#97, VILLAGE#98, DISTRICT#99, IN_SPECIAL_ZONE#100, ZONE_ID#101, ZONE_TYPE#102]
+
+(37) Exchange
+Input [2]: [ZID_ID#83, GEOM_POLYGON#123]
+Arguments: hashpartitioning(knownfloatingpointnormalized(normalizenanandzero(cast(GEOM_POLYGON#123 as double))), 200), ENSURE_REQUIREMENTS, [id=#166]
+
+(38) Sort
+Input [2]: [ZID_ID#83, GEOM_POLYGON#123]
+Arguments: [knownfloatingpointnormalized(normalizenanandzero(cast(GEOM_POLYGON#123 as double))) ASC NULLS FIRST], false, 0
+
+(39) SortMergeJoin
+Left keys [1]: [knownfloatingpointnormalized(normalizenanandzero(cast(GEOM_POINT#260 as double)))]
+Right keys [1]: [knownfloatingpointnormalized(normalizenanandzero(cast(GEOM_POLYGON#123 as double)))]
+Join condition: None
+
+(40) Project
+Output [9]: [ORG_ID#75L, company_name#74, description#47, subcategory_list#251, lon#55, lat#56, city_name#48, ORG_SUBCAT#242, ZID_ID#83]
+Input [11]: [ORG_ID#75L, company_name#74, description#47, subcategory_list#251, lon#55, lat#56, city_name#48, ORG_SUBCAT#242, GEOM_POINT#260, ZID_ID#83, GEOM_POLYGON#123]
+
+(41) AdaptiveSparkPlan
+Output [9]: [ORG_ID#75L, company_name#74, description#47, subcategory_list#251, lon#55, lat#56, city_name#48, ORG_SUBCAT#242, ZID_ID#83]
+Arguments: isFinalPlan=false

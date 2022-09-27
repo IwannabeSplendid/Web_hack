@@ -6,9 +6,10 @@ def parse_schema(physical_plan: str, filename: str, id: int):
     """
     Входные данные:
         physical_plan: текст физического плана для датафрейма
-        columns: лист содержащий все колонки в новосозданном датафрейме
+        filename: название входного файла с физ. планом
+        id: уникальный номер для входного файла
     Выходные данные:
-        parsed: ответ
+        json_file: словарь содержащий граф и ответ к задаче
     """
 
     col_to_location = dict()    # мапает колонки в файл который им соответствует
@@ -27,7 +28,8 @@ def parse_schema(physical_plan: str, filename: str, id: int):
 
         if command == "Scan":
             # расположение файла
-            location = re.findall(r'\[(.*?)\]', lines[3])[0]
+            try: location = re.findall(r'\[(.*?)\]', lines[3])[0]
+            except: location = "null_file"
             # все колонки которые ссылаются на этот файл
             results = re.findall(r'\[(.*?)\]', lines[1])[1]
             # добавляем спаршенную колонку в наш словарь
@@ -38,6 +40,7 @@ def parse_schema(physical_plan: str, filename: str, id: int):
                 col_to_location[col] = location
 
         elif command == "AdaptiveSparkPlan":
+            # читаем выходные колонки
             outputs = re.findall(r'\[(.*?)\]', lines[1])[1]
             for output in outputs.split(", "):
                 col = parse_col(output)
@@ -96,28 +99,28 @@ def parse_schema(physical_plan: str, filename: str, id: int):
             node = {"source": parent, "target": child}
             json_file["graph"]["links"].append(node)
 
+    # создаем ориентированный граф
     dependencies_inverse = []
     for key, val in sorted(dependencies.items()):
         for j in val:
             dependencies_inverse.append((j, key))
-
     nx_graph = nx.DiGraph()
     nx_graph.add_edges_from(dependencies_inverse)
+
     answer = {}
     for child, parents in sorted(dependencies.items()):
         if child not in output_cols:
             continue
+        # находим всех предков нода child и сохраняем в лист
         ancestors_dict = list(nx.ancestors(nx_graph, child))
         answer[child] = {
             'data_sources' : set(),
             'cols_dependencies': set()
         }
         for ancestor in ancestors_dict:
+            # проверяем является ли текущий ancestor входной колонкой
             if ancestor in input_cols:
-                if ancestor in col_to_location:
-                    location_modified = f"{col_to_location[ancestor]}.{ancestor}"
-                else:
-                    location_modified = f"null_file.{ancestor}"
+                location_modified = f"{col_to_location[ancestor]}.{ancestor}"
                 answer[child]['data_sources'].add(col_to_location[ancestor])
                 answer[child]['cols_dependencies'].add(location_modified)
             
